@@ -8,3 +8,4 @@ venv/
 *.tfstate.backup
 .DS_Store
 node_modules/
+infra/secrets.auto.tfvars
