@@ -10,3 +10,5 @@ venv/
 node_modules/
 infra/secrets.auto.tfvars
 output/
+tools/
+connectors/ehr_mock_api/data/

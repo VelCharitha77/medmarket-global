@@ -3,8 +3,11 @@ import json
 import requests
 import sys
 from datetime import datetime
+from faker import Faker
 
-# Major cities per state to search — gives us a realistic geographic spread
+fake = Faker()
+Faker.seed(42)
+
 STATE_CITIES = {
     "OH": ["Columbus", "Cleveland", "Cincinnati"],
     "CA": ["Los Angeles", "San Francisco", "San Diego"],
@@ -13,10 +16,13 @@ STATE_CITIES = {
     "FL": ["Miami", "Orlando", "Tampa"]
 }
 
+def generate_license_dates():
+    """Generate realistic license issue and expiration dates."""
+    issue_date = fake.date_between(start_date="-5y", end_date="-1y")
+    expiration_date = fake.date_between(start_date="-30d", end_date="+365d")
+    return issue_date.isoformat(), expiration_date.isoformat()
+
 def extract_providers(state, city, limit=20):
-    """
-    Calls the NPI Registry API for providers in a given city/state.
-    """
     base_url = "https://npiregistry.cms.hhs.gov/api/"
     params = {
         "version": "2.1",
@@ -56,6 +62,8 @@ def extract_providers(state, city, limit=20):
         if not primary_taxonomy and taxonomies:
             primary_taxonomy = taxonomies[0]
 
+        license_issue_date, license_expiration_date = generate_license_dates()
+
         providers.append({
             "npi": r.get("number"),
             "first_name": basic.get("first_name", ""),
@@ -65,6 +73,8 @@ def extract_providers(state, city, limit=20):
             "specialty": primary_taxonomy.get("desc", ""),
             "taxonomy_code": primary_taxonomy.get("code", ""),
             "license_number": primary_taxonomy.get("license", ""),
+            "license_issue_date": license_issue_date,
+            "license_expiration_date": license_expiration_date,
             "state": primary_taxonomy.get("state", ""),
             "practice_city": practice_address.get("city", ""),
             "practice_state": practice_address.get("state", ""),

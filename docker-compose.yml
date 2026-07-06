@@ -8,11 +8,77 @@ services:
       POSTGRES_PASSWORD: devpass123
       POSTGRES_DB: medmarket
 
+  ehr-mock-api:
+    build: ./connectors/ehr_mock_api
+    container_name: medmarket-ehr-mock-api
+    environment:
+      SYNTHEA_DATA_DIR: /data
+    volumes:
+      - ./connectors/ehr_mock_api/data:/data
+    ports:
+      - "5000:5000"
+
   npi-connector:
     build: ./connectors/npi_registry
     container_name: medmarket-npi-connector
     environment:
       SOURCE_NAME: npi_registry
+      OUTPUT_PATH: /app/output
+    volumes:
+      - ./output:/app/output
+    depends_on:
+      - warehouse
+
+  ehr-connector:
+    build: ./connectors/ehr
+    container_name: medmarket-ehr-connector
+    environment:
+      SOURCE_NAME: ehr
+      OUTPUT_PATH: /app/output
+      EHR_API_URL: http://ehr-mock-api:5000
+    volumes:
+      - ./output:/app/output
+    depends_on:
+      - ehr-mock-api
+
+  hubspot-connector:
+    build: ./connectors/hubspot_crm
+    container_name: medmarket-hubspot-connector
+    environment:
+      SOURCE_NAME: hubspot_crm
+      OUTPUT_PATH: /app/output
+    volumes:
+      - ./output:/app/output
+    depends_on:
+      - warehouse
+
+  hr-connector:
+    build: ./connectors/hr
+    container_name: medmarket-hr-connector
+    environment:
+      SOURCE_NAME: hr
+      OUTPUT_PATH: /app/output
+    volumes:
+      - ./output:/app/output
+    depends_on:
+      - warehouse
+
+  call-center-connector:
+    build: ./connectors/call_center
+    container_name: medmarket-call-center-connector
+    environment:
+      SOURCE_NAME: call_center
+      OUTPUT_PATH: /app/output
+    volumes:
+      - ./output:/app/output
+    depends_on:
+      - warehouse
+
+  region-fx-connector:
+    build: ./connectors/region_fx
+    container_name: medmarket-region-fx-connector
+    environment:
+      SOURCE_NAME: region_fx
       OUTPUT_PATH: /app/output
     volumes:
       - ./output:/app/output
