@@ -56,7 +56,7 @@ def extract_providers(state, city, limit=20):
 
         primary_taxonomy = {}
         for tax in taxonomies:
-            if tax.get("primary") == True:
+            if tax.get("primary"):
                 primary_taxonomy = tax
                 break
         if not primary_taxonomy and taxonomies:

@@ -7,7 +7,8 @@ import json
 import glob
 import psycopg2
 import logging
-from datetime import datetime
+
+#from datetime import datetime
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
 logger = logging.getLogger("engine.loader")
