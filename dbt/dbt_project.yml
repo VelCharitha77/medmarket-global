@@ -31,6 +31,16 @@ clean-targets:         # directories to be removed by `dbt clean`
 # files using the `{{ config(...) }}` macro.
 models:
   medmarket_dbt:
-    # Config indicated by + and applies to all files under models/example/
-    example:
+    staging:
       +materialized: view
+      +schema: public
+    marts:
+      core:
+        +materialized: view
+    compliance:
+      phi_restricted:
+        +materialized: view
+        +schema: phi_restricted
+      reporting_open:
+        +materialized: view
+        +schema: reporting_open
