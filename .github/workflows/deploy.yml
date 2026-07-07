@@ -1,0 +1,56 @@
+name: CD — Build & Push Images
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'connectors/**'
+      - 'docker-compose.yml'
+
+jobs:
+  push-images:
+    name: Build & Push to GHCR
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        run: echo "${{ secrets.DOCKER_REGISTRY_TOKEN }}" | docker login ghcr.io -u VelCharitha77 --password-stdin
+
+      - name: Build and push NPI connector
+        run: |
+          docker build -t ghcr.io/velcharitha77/medmarket-npi-connector:latest connectors/npi_registry/
+          docker push ghcr.io/velcharitha77/medmarket-npi-connector:latest
+
+      - name: Build and push HubSpot connector
+        run: |
+          docker build -t ghcr.io/velcharitha77/medmarket-hubspot-connector:latest connectors/hubspot_crm/
+          docker push ghcr.io/velcharitha77/medmarket-hubspot-connector:latest
+
+      - name: Build and push HR connector
+        run: |
+          docker build -t ghcr.io/velcharitha77/medmarket-hr-connector:latest connectors/hr/
+          docker push ghcr.io/velcharitha77/medmarket-hr-connector:latest
+
+      - name: Build and push Call Center connector
+        run: |
+          docker build -t ghcr.io/velcharitha77/medmarket-call-center-connector:latest connectors/call_center/
+          docker push ghcr.io/velcharitha77/medmarket-call-center-connector:latest
+
+      - name: Build and push Region/FX connector
+        run: |
+          docker build -t ghcr.io/velcharitha77/medmarket-region-fx-connector:latest connectors/region_fx/
+          docker push ghcr.io/velcharitha77/medmarket-region-fx-connector:latest
+
+      - name: Build and push EHR connector
+        run: |
+          docker build -t ghcr.io/velcharitha77/medmarket-ehr-connector:latest connectors/ehr/
+          docker push ghcr.io/velcharitha77/medmarket-ehr-connector:latest
+
+      - name: Build and push EHR Mock API
+        run: |
+          docker build -t ghcr.io/velcharitha77/medmarket-ehr-mock-api:latest connectors/ehr_mock_api/
+          docker push ghcr.io/velcharitha77/medmarket-ehr-mock-api:latest
