@@ -12,3 +12,7 @@ infra/secrets.auto.tfvars
 output/
 tools/
 connectors/ehr_mock_api/data/
+logs/
+dbt/target/
+dbt/logs/
+dbt/dbt_packages/

@@ -1,0 +1,91 @@
+version: 2
+
+models:
+  - name: dim_date
+    description: "Calendar date dimension — one row per day"
+    columns:
+      - name: date_key
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_provider
+    description: "Healthcare provider dimension with license status"
+    columns:
+      - name: provider_key
+        tests:
+          - unique
+          - not_null
+      - name: npi
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_region
+    description: "Marketplace region dimension with FX rates"
+    columns:
+      - name: region_key
+        tests:
+          - unique
+          - not_null
+      - name: region_code
+        tests:
+          - unique
+
+  - name: dim_patient
+    description: "Patient dimension"
+    columns:
+      - name: patient_key
+        tests:
+          - unique
+          - not_null
+      - name: patient_id
+        tests:
+          - unique
+
+  - name: dim_payment_method
+    description: "Payment method reference dimension"
+    columns:
+      - name: payment_method_key
+        tests:
+          - unique
+          - not_null
+
+  - name: fact_bookings
+    description: "One row per encounter/appointment"
+    columns:
+      - name: booking_id
+        tests:
+          - unique
+          - not_null
+      - name: date_key
+        tests:
+          - not_null
+      - name: provider_key
+        tests:
+          - not_null
+      - name: patient_key
+        tests:
+          - not_null
+
+  - name: fact_payments
+    description: "One row per payment for an encounter"
+    columns:
+      - name: payment_id
+        tests:
+          - unique
+          - not_null
+      - name: amount
+        tests:
+          - not_null
+
+  - name: fact_calls
+    description: "One row per call center call"
+    columns:
+      - name: call_key
+        tests:
+          - unique
+          - not_null
+      - name: date_key
+        tests:
+          - not_null

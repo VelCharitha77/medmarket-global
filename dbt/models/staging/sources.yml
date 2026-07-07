@@ -1,0 +1,23 @@
+version: 2
+
+sources:
+  - name: raw
+    description: "Raw data loaded from connectors via engine/loader.py"
+    schema: public
+    tables:
+      - name: raw_providers
+        description: "Healthcare providers from NPI Registry"
+      - name: raw_patients
+        description: "Synthetic patients from Synthea/EHR"
+      - name: raw_encounters
+        description: "Patient encounters/appointments from Synthea/EHR"
+      - name: raw_crm_contacts
+        description: "CRM contacts from HubSpot connector"
+      - name: raw_employees
+        description: "Employee records from HR connector"
+      - name: raw_calls
+        description: "Call center logs from Five9 connector"
+      - name: raw_regions
+        description: "Marketplace region definitions"
+      - name: raw_fx_rates
+        description: "Currency exchange rates to USD"

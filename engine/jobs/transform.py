@@ -21,8 +21,10 @@ class TransformJob(Job):
     def run(self):
         self.logger.info(f"Running: dbt {self.dbt_command}")
 
+        cmd = ["dbt"] + self.dbt_command.split()
+
         result = subprocess.run(
-            ["dbt", self.dbt_command],
+            cmd,
             cwd=self.dbt_project_dir,
             capture_output=True,
             text=True,
