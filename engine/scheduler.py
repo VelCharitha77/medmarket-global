@@ -20,6 +20,7 @@ class Scheduler:
     3. Marks blocked downstream jobs as SKIPPED if a dependency failed
     4. Repeats until every job has reached a terminal state
     5. Logs every job run to a database table for monitoring
+    6. Sends alerts on failure/success via the alerting module
     """
 
     def __init__(self, dag, db_url=None):
@@ -49,6 +50,14 @@ class Scheduler:
             for job in runnable:
                 success = job.execute()
                 self.run_log.append(job.to_dict())
+                
+                # Send alert on failure
+                if not success:
+                    try:
+                        from engine.alerting import alert_on_failure
+                        alert_on_failure(self.dag.name, job.name, job.error)
+                    except Exception as e:
+                        logger.warning(f"Could not send failure alert: {e}")
 
         # Log results
         end_time = datetime.utcnow()
@@ -62,6 +71,21 @@ class Scheduler:
         logger.info(f"=== DAG {self.dag.name} complete ({duration:.1f}s) ===")
         logger.info(f"Results: {succeeded}/{total} succeeded, {failed} failed, {skipped} skipped")
         logger.info(f"\n{self.dag.summary()}")
+
+        # Send completion alert
+        try:
+            if failed == 0:
+                from engine.alerting import alert_on_success
+                alert_on_success(self.dag.name, total, duration)
+            else:
+                from engine.alerting import send_alert
+                send_alert(
+                    title=f"Pipeline Partial Failure: {self.dag.name}",
+                    message=f"{succeeded}/{total} succeeded, {failed} failed, {skipped} skipped in {duration:.1f}s",
+                    severity="warning"
+                )
+        except Exception as e:
+            logger.warning(f"Could not send completion alert: {e}")
 
         # Save to database if connected
         if self.db_url:
