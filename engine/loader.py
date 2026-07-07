@@ -8,8 +8,6 @@ import glob
 import psycopg2
 import logging
 
-#from datetime import datetime
-
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
 logger = logging.getLogger("engine.loader")
 
@@ -168,6 +166,27 @@ def create_raw_tables(cur):
             rate_date TEXT,
             loaded_at TIMESTAMP DEFAULT NOW()
         );
+
+        CREATE TABLE IF NOT EXISTS raw_sg_providers (
+            npi TEXT,
+            first_name TEXT,
+            last_name TEXT,
+            credential TEXT,
+            gender TEXT,
+            specialty TEXT,
+            taxonomy_code TEXT,
+            license_number TEXT,
+            license_issue_date TEXT,
+            license_expiration_date TEXT,
+            state TEXT,
+            practice_city TEXT,
+            practice_state TEXT,
+            practice_zip TEXT,
+            enumeration_date TEXT,
+            last_updated TEXT,
+            status TEXT,
+            loaded_at TIMESTAMP DEFAULT NOW()
+        );
     """)
 
 def insert_records(cur, table_name, records, columns):
@@ -195,17 +214,19 @@ def main():
     create_raw_tables(cur)
     conn.commit()
 
+    provider_columns = [
+        "npi", "first_name", "last_name", "credential", "gender",
+        "specialty", "taxonomy_code", "license_number",
+        "license_issue_date", "license_expiration_date",
+        "state", "practice_city", "practice_state", "practice_zip",
+        "enumeration_date", "last_updated", "status"
+    ]
+
     # Load each source
     try:
         # NPI providers
         records = load_json(get_latest_file("npi_registry_"))
-        insert_records(cur, "raw_providers", records, [
-            "npi", "first_name", "last_name", "credential", "gender",
-            "specialty", "taxonomy_code", "license_number",
-            "license_issue_date", "license_expiration_date",
-            "state", "practice_city", "practice_state", "practice_zip",
-            "enumeration_date", "last_updated", "status"
-        ])
+        insert_records(cur, "raw_providers", records, provider_columns)
 
         # EHR patients
         records = load_json(get_latest_file("ehr_patients_"))
@@ -278,6 +299,10 @@ def main():
         insert_records(cur, "raw_fx_rates", records, [
             "currency_code", "rate_to_usd", "rate_date"
         ])
+
+        # Singapore providers
+        records = load_json(get_latest_file("sg_providers_"))
+        insert_records(cur, "raw_sg_providers", records, provider_columns)
 
         conn.commit()
         logger.info("All raw data loaded successfully")

@@ -1,5 +1,15 @@
-with providers as (
+with us_providers as (
     select * from {{ ref('stg_providers') }}
+),
+
+sg_providers as (
+    select * from {{ ref('stg_sg_providers') }}
+),
+
+combined as (
+    select * from us_providers
+    union all
+    select * from sg_providers
 ),
 
 final as (
@@ -30,7 +40,7 @@ final as (
         true as is_current,
         current_date as effective_date,
         null::date as end_date
-    from providers
+    from combined
 )
 
 select * from final

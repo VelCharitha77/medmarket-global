@@ -20,10 +20,11 @@ def build_nightly_dag():
     
     extract_npi ──┐
     extract_ehr ──┤
-    extract_crm ──┼──► load_raw ──► dbt_staging ──► dbt_marts ──► refresh_views ──► dbt_test
-    extract_hr ───┤
+    extract_crm ──┤
+    extract_hr ───┼──► load_raw ──► dbt_staging ──► dbt_marts ──► refresh_views ──► dbt_test
     extract_calls─┤
-    extract_fx ───┘
+    extract_fx ───┤
+    extract_sg ───┘
     """
     dag = DAG("nightly_global")
 
@@ -34,11 +35,12 @@ def build_nightly_dag():
     dag.add_job(ExtractJob("extract_hr", service_name="hr-connector"))
     dag.add_job(ExtractJob("extract_calls", service_name="call-center-connector"))
     dag.add_job(ExtractJob("extract_fx", service_name="region-fx-connector"))
+    dag.add_job(ExtractJob("extract_sg", service_name="sg-providers-connector"))
 
     # Layer 2: Load raw data into Postgres (depends on ALL extracts finishing)
     dag.add_job(
         ShellJob("load_raw", command="python engine/loader.py"),
-        depends_on=["extract_npi", "extract_ehr", "extract_crm", "extract_hr", "extract_calls", "extract_fx"]
+        depends_on=["extract_npi", "extract_ehr", "extract_crm", "extract_hr", "extract_calls", "extract_fx", "extract_sg"]
     )
 
     # Layer 3: dbt staging models (depends on raw data being loaded)

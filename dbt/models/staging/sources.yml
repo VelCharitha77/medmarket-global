@@ -21,3 +21,5 @@ sources:
         description: "Marketplace region definitions"
       - name: raw_fx_rates
         description: "Currency exchange rates to USD"
+      - name: raw_sg_providers
+        description: "Singapore healthcare providers"

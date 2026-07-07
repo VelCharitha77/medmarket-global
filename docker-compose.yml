@@ -84,3 +84,14 @@ services:
       - ./output:/app/output
     depends_on:
       - warehouse
+
+  sg-providers-connector:
+    build: ./connectors/sg_providers
+    container_name: medmarket-sg-providers-connector
+    environment:
+      SOURCE_NAME: sg_providers
+      OUTPUT_PATH: /app/output
+    volumes:
+      - ./output:/app/output
+    depends_on:
+      - warehouse
