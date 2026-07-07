@@ -20,7 +20,7 @@ def build_nightly_dag():
     
     extract_npi ──┐
     extract_ehr ──┤
-    extract_crm ──┼──► load_raw ──► dbt_staging ──► dbt_marts ──► dbt_test
+    extract_crm ──┼──► load_raw ──► dbt_staging ──► dbt_marts ──► refresh_views ──► dbt_test
     extract_hr ───┤
     extract_calls─┤
     extract_fx ───┘
@@ -53,10 +53,16 @@ def build_nightly_dag():
         depends_on=["dbt_staging"]
     )
 
-    # Layer 5: dbt tests (depends on marts being built)
+    # Layer 4.5: Refresh materialized views (depends on marts)
+    dag.add_job(
+        ShellJob("refresh_views", command="python engine/refresh_views.py"),
+        depends_on=["dbt_marts"]
+    )
+
+    # Layer 5: dbt tests (depends on marts AND view refresh)
     dag.add_job(
         TransformJob("dbt_test", dbt_command="test"),
-        depends_on=["dbt_marts"]
+        depends_on=["dbt_marts", "refresh_views"]
     )
 
     return dag

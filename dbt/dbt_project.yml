@@ -36,7 +36,7 @@ models:
       +schema: public
     marts:
       core:
-        +materialized: view
+        +materialized: table
     compliance:
       phi_restricted:
         +materialized: view
